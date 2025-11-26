@@ -1,39 +1,47 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const { connectDB } = require("./lib/mongo.js");
+
 const app = express();
-
 app.use(express.json());
-
-mongoose.connect("YOUR_MONGO_URI")
-  .then(() => console.log("MongoDB Connected"))
-  .catch(err => console.log(err));
 
 const chatSchema = new mongoose.Schema({
   index: Number,
   chatId: String
 });
 
-const Chat = mongoose.model("Chat", chatSchema);
+const Chat = mongoose.models.Chat || mongoose.model("Chat", chatSchema);
 
 async function getNextIndex() {
+  await connectDB();
   const last = await Chat.findOne().sort({ index: -1 });
   return last ? last.index + 1 : 1;
 }
 
 app.post("/store", async (req, res) => {
-  try {
-    const { chatId } = req.body;
+  await connectDB();
+  const { chatId } = req.body;
 
-    if (!chatId) return res.status(400).json({ error: "No chatId" });
+  const exists = await Chat.findOne({ chatId });
+  if (exists) return res.json({ message: "Already exists", index: exists.index });
 
-    const exists = await Chat.findOne({ chatId });
+  const idx = await getNextIndex();
+  await Chat.create({ index: idx, chatId });
 
-    if (exists)
-      return res.json({ message: "Already exists", index: exists.index });
+  res.json({ message: "Stored", index: idx });
+});
 
-    const index = await getNextIndex();
+app.get("/chat", async (req, res) => {
+  await connectDB();
+  const index = parseInt(req.query.index);
 
-    await Chat.create({ index, chatId });
+  const user = await Chat.findOne({ index });
+  if (!user) return res.json({ error: "Not found" });
+
+  res.json(user);
+});
+
+app.listen(3000, () => console.log("API Ready"));
 
     return res.json({ message: "Stored", index });
   } catch (err) {
