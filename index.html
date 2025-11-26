@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Telegram Bot Broadcast Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
@@ -88,44 +87,6 @@
             border: 1px solid rgba(255, 102, 0, 0.3);
         }
 
-        .nav-toggle {
-            display: flex;
-            justify-content: center;
-            margin: 2rem 0;
-        }
-
-        .toggle-btn {
-            padding: 0.75rem 1.5rem;
-            background: rgba(255, 102, 0, 0.1);
-            border: 1px solid rgba(255, 102, 0, 0.3);
-            color: var(--light);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .toggle-btn:first-child {
-            border-radius: 0.5rem 0 0 0.5rem;
-        }
-
-        .toggle-btn:last-child {
-            border-radius: 0 0.5rem 0.5rem 0;
-        }
-
-        .toggle-btn.active {
-            background: var(--primary);
-            border-color: var(--primary);
-        }
-
-        .dashboard {
-            padding: 2rem 0;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-
         .card {
             background: rgba(20, 20, 20, 0.7);
             backdrop-filter: blur(10px);
@@ -134,11 +95,6 @@
             padding: 1.5rem;
             margin-bottom: 1.5rem;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
         }
 
         .card-header {
@@ -157,51 +113,6 @@
             gap: 0.5rem;
         }
 
-        .info-icon {
-            color: var(--primary);
-            cursor: help;
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .info-tooltip {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.8rem;
-            width: 300px;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 102, 0, 0.3);
-            pointer-events: none;
-        }
-
-        .info-tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 6px solid transparent;
-            border-top-color: rgba(0, 0, 0, 0.9);
-        }
-
-        .info-icon:hover .info-tooltip {
-            opacity: 1;
-            visibility: visible;
-            bottom: calc(100% + 10px);
-        }
-
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -213,7 +124,7 @@
             color: var(--light);
         }
 
-        input, textarea, select {
+        input, textarea {
             width: 100%;
             padding: 0.75rem 1rem;
             background: rgba(0, 0, 0, 0.3);
@@ -221,65 +132,11 @@
             border-radius: 0.5rem;
             color: var(--light);
             font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.2);
         }
 
         textarea {
             min-height: 120px;
             resize: vertical;
-        }
-
-        .file-input-container {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            width: 100%;
-        }
-
-        .file-input {
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-
-        .file-input-label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 12px 15px;
-            background: rgba(255, 102, 0, 0.1);
-            border: 2px dashed rgba(255, 102, 0, 0.4);
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .file-input-label:hover {
-            background: rgba(255, 102, 0, 0.2);
-            border-color: var(--primary);
-        }
-
-        .file-preview {
-            margin-top: 15px;
-            display: none;
-        }
-
-        .file-preview img, .file-preview video, .file-preview audio {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 8px;
         }
 
         .btn {
@@ -296,42 +153,14 @@
             font-size: 16px;
             font-weight: 500;
             transition: all 0.3s;
-            box-shadow: 0 4px 6px rgba(255, 102, 0, 0.3);
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(255, 102, 0, 0.4);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 102, 0, 0.1);
-            color: var(--primary);
-            border: 1px solid var(--primary);
-            box-shadow: none;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 102, 0, 0.2);
         }
 
         .btn-success {
             background: linear-gradient(135deg, var(--success), #45a049);
-            box-shadow: 0 4px 6px rgba(76, 175, 80, 0.3);
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, var(--warning), #e68900);
-            box-shadow: 0 4px 6px rgba(255, 152, 0, 0.3);
-        }
-
-        .btn-error {
-            background: linear-gradient(135deg, var(--error), #d32f2f);
-            box-shadow: 0 4px 6px rgba(244, 67, 54, 0.3);
         }
 
         .flex {
@@ -384,13 +213,6 @@
             padding: 10px;
             border-bottom: 1px solid rgba(255, 102, 0, 0.1);
             font-size: 14px;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-
-        .log-entry:last-child {
-            border-bottom: none;
         }
 
         .log-success {
@@ -421,7 +243,6 @@
             border-radius: 10px;
             padding: 20px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 102, 0, 0.2);
         }
 
@@ -450,7 +271,6 @@
 
         .status-online {
             background-color: var(--success);
-            box-shadow: 0 0 8px var(--success);
         }
 
         .status-offline {
@@ -473,8 +293,6 @@
             color: #fff;
             border-radius: 5px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
             z-index: 1000;
             transform: translateX(150%);
             transition: transform 0.4s ease;
@@ -483,19 +301,6 @@
 
         .toast.show {
             transform: translateX(0);
-        }
-
-        .toast.success {
-            border-left-color: var(--success);
-        }
-
-        .toast.error {
-            border-left-color: var(--error);
-        }
-
-        .toast-icon {
-            margin-right: 10px;
-            font-size: 20px;
         }
 
         .loading-container {
@@ -532,121 +337,10 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        .section {
-            display: none;
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        .chart-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .chart-card {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 102, 0, 0.2);
-            text-align: center;
-        }
-
-        .chart-title {
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .chart-wrapper {
-            position: relative;
-            height: 250px;
-            width: 100%;
-        }
-
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-        }
-
-        .analytics-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-
-        .media-type-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .media-type-btn {
-            flex: 1;
-            padding: 10px;
-            background: rgba(255, 102, 0, 0.1);
-            border: 1px solid rgba(255, 102, 0, 0.3);
-            border-radius: 5px;
-            color: var(--light);
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-
-        .media-type-btn.active {
-            background: var(--primary);
-            border-color: var(--primary);
-        }
-
-        @media (max-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .flex {
-                flex-direction: column;
-            }
-            
-            .stats {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .user-info {
-                flex-direction: column;
-                align-items: flex-end;
-                gap: 0.5rem;
-            }
-
-            .info-tooltip {
-                width: 250px;
-                left: 0;
-                transform: none;
-            }
-
-            .info-tooltip::after {
-                left: 20px;
-            }
-
-            .analytics-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .analytics-stats {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="toast" id="toast">
-        <span class="toast-icon">✓</span>
         <span class="toast-message">Action completed successfully!</span>
     </div>
 
@@ -662,234 +356,99 @@
                     <span>Telegram Bot Broadcast</span>
                 </div>
                 <div class="user-info">
-                    <div class="balance" id="userBalance">Dashboard Active</div>
-                    <div id="userName">Administrator</div>
+                    <div class="balance">Dashboard Active</div>
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="container">
-        <div class="nav-toggle">
-            <button class="toggle-btn active" data-section="broadcast" id="broadcastToggle">Broadcast</button>
-            <button class="toggle-btn" data-section="analytics" id="analyticsToggle">Analytics</button>
-        </div>
-    </div>
-
     <section class="dashboard container">
-        <div class="section active" id="broadcastSection">
-            <div class="dashboard-grid">
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">
-                            <i class="fas fa-key"></i> Bot Authentication
-                            <div class="info-icon">
-                                <i class="fas fa-info-circle"></i>
-                                <div class="info-tooltip">
-                                    Enter your Telegram Bot API token to authenticate and start broadcasting messages.
-                                </div>
-                            </div>
-                        </h2>
-                    </div>
-                    <div class="form-group">
-                        <label for="botToken">Enter your Telegram Bot Token</label>
-                        <input type="text" id="botToken" placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz">
-                    </div>
-                    <div class="flex">
-                        <button class="btn flex-1" id="validateToken">
-                            <i class="fas fa-check-circle"></i> Validate Token
-                        </button>
-                        <button class="btn btn-secondary flex-1" id="saveToken">
-                            <i class="fas fa-save"></i> Save Token
-                        </button>
-                    </div>
-                    <div class="token-status">
-                        <span class="status-indicator status-offline" id="tokenStatus"></span>
-                        <span id="tokenStatusText">Token not validated</span>
-                    </div>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-key"></i> Bot Authentication
+                </h2>
+            </div>
+            <div class="form-group">
+                <label for="botToken">Enter your Telegram Bot Token</label>
+                <input type="text" id="botToken" placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz">
+            </div>
+            <button class="btn" id="validateToken">
+                <i class="fas fa-check-circle"></i> Validate Token
+            </button>
+            <div class="token-status">
+                <span class="status-indicator status-offline" id="tokenStatus"></span>
+                <span id="tokenStatusText">Token not validated</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-bullhorn"></i> Broadcast Message
+                </h2>
+            </div>
+            
+            <div class="form-group">
+                <label for="messageText">Message Text</label>
+                <textarea id="messageText" placeholder="Enter your broadcast message here..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="startIndex">Start Index (Default: 0)</label>
+                <input type="number" id="startIndex" value="0" min="0">
+                <small>Each index will call an API to get the chat ID for sending the message</small>
+            </div>
+
+            <div class="flex">
+                <button class="btn btn-success flex-1" id="sendBtn">
+                    <i class="fas fa-paper-plane"></i> Send Broadcast
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-tachometer-alt"></i> Broadcast Progress
+                </h2>
+            </div>
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress" id="progressBar"></div>
                 </div>
+                <div class="progress-text" id="progressText">0% (0/0)</div>
+            </div>
 
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">
-                            <i class="fas fa-bullhorn"></i> Broadcast Message
-                            <div class="info-icon">
-                                <i class="fas fa-info-circle"></i>
-                                <div class="info-tooltip">
-                                    Create and send broadcast messages to your Telegram subscribers. You can include text, images, videos, or audio files.
-                                </div>
-                            </div>
-                        </h2>
-                    </div>
-                    
-                    <div class="media-type-selector">
-                        <div class="media-type-btn active" data-type="text">Text Only</div>
-                        <div class="media-type-btn" data-type="photo">Photo</div>
-                        <div class="media-type-btn" data-type="video">Video</div>
-                        <div class="media-type-btn" data-type="audio">Audio</div>
-                        <div class="media-type-btn" data-type="document">Document</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="messageText" id="messageLabel">Message Text</label>
-                        <textarea id="messageText" placeholder="Enter your broadcast message here..."></textarea>
-                    </div>
-
-                    <div class="form-group" id="mediaUploadSection">
-                        <label id="mediaLabel">Media Attachment</label>
-                        <div class="file-input-container">
-                            <input type="file" id="mediaFile" class="file-input" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt">
-                            <label for="mediaFile" class="file-input-label">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                                <span id="fileInputText">Choose Image, Video or Audio File</span>
-                            </label>
-                        </div>
-                        <div class="file-preview" id="filePreview"></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="startIndex">Start Index (Default: 0)</label>
-                        <input type="number" id="startIndex" value="0" min="0">
-                        <small>Each index will call an API to get the chat ID for sending the message</small>
-                    </div>
-
-                    <div class="flex">
-                        <button class="btn btn-secondary flex-1" id="previewBtn">
-                            <i class="fas fa-eye"></i> Preview Message
-                        </button>
-                        <button class="btn btn-success flex-1" id="sendBtn">
-                            <i class="fas fa-paper-plane"></i> Send Broadcast
-                        </button>
-                    </div>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="sentCount">0</div>
+                    <div class="stat-label">Messages Sent</div>
                 </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">
-                            <i class="fas fa-tachometer-alt"></i> Broadcast Progress
-                            <div class="info-icon">
-                                <i class="fas fa-info-circle"></i>
-                                <div class="info-tooltip">
-                                    Track the progress of your broadcast messages in real-time. Monitor sent messages, blocked users, and failures.
-                                </div>
-                            </div>
-                        </h2>
-                    </div>
-                    <div class="progress-container" id="progressContainer">
-                        <div class="progress-bar">
-                            <div class="progress" id="progressBar"></div>
-                        </div>
-                        <div class="progress-text" id="progressText">0% (0/0)</div>
-                    </div>
-
-                    <div class="stats">
-                        <div class="stat-card">
-                            <div class="stat-value" id="sentCount">0</div>
-                            <div class="stat-label">Messages Sent</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="blockedCount">0</div>
-                            <div class="stat-label">Users Blocked</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="failedCount">0</div>
-                            <div class="stat-label">Failed</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="totalCount">0</div>
-                            <div class="stat-label">Total Users</div>
-                        </div>
-                    </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="blockedCount">0</div>
+                    <div class="stat-label">Users Blocked</div>
                 </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">
-                            <i class="fas fa-clipboard-list"></i> Activity Logs
-                            <div class="info-icon">
-                                <i class="fas fa-info-circle"></i>
-                                <div class="info-tooltip">
-                                    View detailed logs of all broadcast activities including successful sends, blocked users, and errors.
-                                </div>
-                            </div>
-                        </h2>
-                    </div>
-                    <div class="logs-container" id="logsContainer">
-                        <div class="log-entry log-info">
-                            <i class="fas fa-info-circle"></i> System ready. Please enter your bot token to start.
-                        </div>
-                    </div>
-                    <div class="flex" style="margin-top: 15px;">
-                        <button class="btn btn-secondary flex-1" id="clearLogs">
-                            <i class="fas fa-trash"></i> Clear Logs
-                        </button>
-                        <button class="btn flex-1" id="exportLogs">
-                            <i class="fas fa-download"></i> Export Logs
-                        </button>
-                    </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="failedCount">0</div>
+                    <div class="stat-label">Failed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCount">0</div>
+                    <div class="stat-label">Total Users</div>
                 </div>
             </div>
         </div>
 
-        <div class="section" id="analyticsSection">
-            <div class="dashboard-grid">
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">
-                            <i class="fas fa-chart-bar"></i> Broadcast Analytics
-                            <div class="info-icon">
-                                <i class="fas fa-info-circle"></i>
-                                <div class="info-tooltip">
-                                    View analytics and statistics for your broadcast campaigns. Track engagement, delivery rates, and user activity.
-                                </div>
-                            </div>
-                        </h2>
-                    </div>
-                    
-                    <div class="analytics-grid">
-                        <div class="chart-container">
-                            <div class="chart-card">
-                                <div class="chart-title">Message Delivery Status</div>
-                                <div class="chart-wrapper">
-                                    <canvas id="deliveryChart"></canvas>
-                                </div>
-                            </div>
-                            <div class="chart-card">
-                                <div class="chart-title">Media Type Distribution</div>
-                                <div class="chart-wrapper">
-                                    <canvas id="mediaChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="analytics-stats">
-                            <div class="stat-card">
-                                <div class="stat-value" id="totalBroadcasts">24</div>
-                                <div class="stat-label">Total Broadcasts</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value" id="avgDeliveryRate">87%</div>
-                                <div class="stat-label">Avg. Delivery Rate</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value" id="totalRecipients">15.2K</div>
-                                <div class="stat-label">Total Recipients</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value" id="activeUsers">12.4K</div>
-                                <div class="stat-label">Active Users</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="chart-container" style="margin-top: 20px;">
-                        <div class="chart-card" style="grid-column: 1 / -1;">
-                            <div class="chart-title">Broadcast Performance Over Time</div>
-                            <div class="chart-wrapper">
-                                <canvas id="performanceChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-clipboard-list"></i> Activity Logs
+                </h2>
+            </div>
+            <div class="logs-container" id="logsContainer">
+                <div class="log-entry log-info">
+                    <i class="fas fa-info-circle"></i> System ready. Please enter your bot token to start.
                 </div>
             </div>
         </div>
@@ -899,9 +458,7 @@
         // API Configuration
         const API_BASE_URL = 'https://index-api-omega.vercel.app';
         let currentBotToken = '';
-        let currentMediaType = 'text';
         let isBroadcasting = false;
-        let broadcastController = new AbortController();
 
         // DOM Elements
         const toast = document.getElementById('toast');
@@ -916,109 +473,12 @@
         const blockedCount = document.getElementById('blockedCount');
         const failedCount = document.getElementById('failedCount');
         const totalCount = document.getElementById('totalCount');
-        const messageLabel = document.getElementById('messageLabel');
-        const mediaLabel = document.getElementById('mediaLabel');
-        const fileInputText = document.getElementById('fileInputText');
-        const sendBtn = document.getElementById('sendBtn');
-
-        const toggleButtons = document.querySelectorAll('.toggle-btn');
-        const sections = document.querySelectorAll('.section');
-        const mediaTypeButtons = document.querySelectorAll('.media-type-btn');
 
         // Statistics
         let sent = 0;
         let blocked = 0;
         let failed = 0;
         let total = 0;
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            initCharts();
-            loadSavedToken();
-            updateMediaUI();
-        });
-
-        // Media Type Selection
-        mediaTypeButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                mediaTypeButtons.forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                currentMediaType = this.getAttribute('data-type');
-                updateMediaUI();
-            });
-        });
-
-        function updateMediaUI() {
-            const mediaUploadSection = document.getElementById('mediaUploadSection');
-            const messageText = document.getElementById('messageText');
-            
-            switch(currentMediaType) {
-                case 'text':
-                    messageLabel.textContent = 'Message Text';
-                    messageText.placeholder = 'Enter your broadcast message here...';
-                    mediaUploadSection.style.display = 'none';
-                    break;
-                case 'photo':
-                    messageLabel.textContent = 'Photo Caption (Optional)';
-                    messageText.placeholder = 'Enter caption for your photo...';
-                    mediaUploadSection.style.display = 'block';
-                    mediaLabel.textContent = 'Photo File';
-                    fileInputText.textContent = 'Choose Photo File';
-                    document.getElementById('mediaFile').accept = 'image/*';
-                    break;
-                case 'video':
-                    messageLabel.textContent = 'Video Caption (Optional)';
-                    messageText.placeholder = 'Enter caption for your video...';
-                    mediaUploadSection.style.display = 'block';
-                    mediaLabel.textContent = 'Video File';
-                    fileInputText.textContent = 'Choose Video File';
-                    document.getElementById('mediaFile').accept = 'video/*';
-                    break;
-                case 'audio':
-                    messageLabel.textContent = 'Audio Caption (Optional)';
-                    messageText.placeholder = 'Enter caption for your audio...';
-                    mediaUploadSection.style.display = 'block';
-                    mediaLabel.textContent = 'Audio File';
-                    fileInputText.textContent = 'Choose Audio File';
-                    document.getElementById('mediaFile').accept = 'audio/*';
-                    break;
-                case 'document':
-                    messageLabel.textContent = 'Document Caption (Optional)';
-                    messageText.placeholder = 'Enter caption for your document...';
-                    mediaUploadSection.style.display = 'block';
-                    mediaLabel.textContent = 'Document File';
-                    fileInputText.textContent = 'Choose Document File';
-                    document.getElementById('mediaFile').accept = '.pdf,.doc,.docx,.txt,.zip,.rar';
-                    break;
-            }
-            
-            // Clear file preview when changing media type
-            document.getElementById('filePreview').style.display = 'none';
-            document.getElementById('mediaFile').value = '';
-        }
-
-        // File preview functionality
-        const mediaFile = document.getElementById('mediaFile');
-        const filePreview = document.getElementById('filePreview');
-        
-        mediaFile.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                const file = this.files[0];
-                const fileType = file.type.split('/')[0];
-                
-                filePreview.style.display = 'block';
-                
-                if (fileType === 'image') {
-                    filePreview.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Preview">`;
-                } else if (fileType === 'video') {
-                    filePreview.innerHTML = `<video controls><source src="${URL.createObjectURL(file)}" type="${file.type}">Your browser does not support the video tag.</video>`;
-                } else if (fileType === 'audio') {
-                    filePreview.innerHTML = `<audio controls><source src="${URL.createObjectURL(file)}" type="${file.type}">Your browser does not support the audio tag.</audio>`;
-                } else {
-                    filePreview.innerHTML = `<p>File: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</p>`;
-                }
-            }
-        });
 
         // Logging functionality
         function addLog(message, type = 'info') {
@@ -1079,17 +539,7 @@
             loadingContainer.classList.remove('show');
         }
 
-        // Load saved token from localStorage
-        function loadSavedToken() {
-            const savedToken = localStorage.getItem('telegramBotToken');
-            if (savedToken) {
-                document.getElementById('botToken').value = savedToken;
-                currentBotToken = savedToken;
-                addLog('Loaded saved bot token', 'info');
-            }
-        }
-
-        // API Functions
+        // API Functions - SIMPLE URL ENCODED REQUESTS
         async function validateBotToken(token) {
             try {
                 const response = await fetch(`https://api.telegram.org/bot${token}/getMe`);
@@ -1105,9 +555,7 @@
 
         async function getChatId(index) {
             try {
-                const response = await fetch(`${API_BASE_URL}/chat?index=${index}`, {
-                    signal: broadcastController.signal
-                });
+                const response = await fetch(`${API_BASE_URL}/chat?index=${index}`);
                 
                 if (!response.ok) {
                     throw new Error('Failed to fetch chat ID');
@@ -1123,51 +571,22 @@
                 // Return the chatId from the response
                 return { success: true, chatId: data.chatId };
             } catch (error) {
-                if (error.name === 'AbortError') {
-                    return { success: false, error: 'Broadcast cancelled' };
-                }
                 return { success: false, error: error.message };
             }
         }
 
-        async function sendTelegramMessage(chatId, message, mediaFile = null, mediaType = 'text') {
+        async function sendTelegramMessage(chatId, message) {
             try {
-                let endpoint = '';
-                let formData = new FormData();
-                formData.append('chat_id', chatId);
-
-                if (mediaType === 'text') {
-                    endpoint = 'sendMessage';
-                    formData.append('text', message);
-                } else {
-                    // For media messages, use caption for the text
-                    if (message && message.trim() !== '') {
-                        formData.append('caption', message);
-                    }
-                    
-                    formData.append(mediaType, mediaFile);
-                    
-                    switch(mediaType) {
-                        case 'photo': endpoint = 'sendPhoto'; break;
-                        case 'video': endpoint = 'sendVideo'; break;
-                        case 'audio': endpoint = 'sendAudio'; break;
-                        case 'document': endpoint = 'sendDocument'; break;
-                    }
-                }
-                
-                const response = await fetch(`https://api.telegram.org/bot${currentBotToken}/${endpoint}`, {
-                    method: 'POST',
-                    body: formData,
-                    signal: broadcastController.signal,
-                    chat_id: chatId
+                // SIMPLE URL ENCODED REQUEST - JUST LIKE CURL
+                const params = new URLSearchParams({
+                    chat_id: chatId,
+                    text: message
                 });
-                
+
+                const response = await fetch(`https://api.telegram.org/bot${currentBotToken}/sendMessage?${params}`);
                 const result = await response.json();
                 return result;
             } catch (error) {
-                if (error.name === 'AbortError') {
-                    throw new Error('Broadcast cancelled');
-                }
                 throw error;
             }
         }
@@ -1198,58 +617,18 @@
             }
         });
 
-        document.getElementById('saveToken').addEventListener('click', function() {
-            const token = document.getElementById('botToken').value.trim();
-            if (!token) {
-                addLog('Please enter a bot token first', 'error');
-                return;
-            }
-            
-            localStorage.setItem('telegramBotToken', token);
-            addLog('Bot token saved to local storage', 'success');
-            showToast('Token saved successfully!');
-        });
-
-        document.getElementById('previewBtn').addEventListener('click', function() {
-            const message = document.getElementById('messageText').value;
-            if (!message && currentMediaType === 'text') {
-                addLog('Please enter a message to preview', 'warning');
-                return;
-            }
-            
-            addLog('Message preview generated', 'info');
-            // In a real app, this would show a preview modal
-            alert(`Preview for ${currentMediaType} message:\n\n${message || '(No text)'}`);
-        });
-
         document.getElementById('sendBtn').addEventListener('click', async function() {
-            if (isBroadcasting) {
-                // Stop broadcast
-                broadcastController.abort();
-                isBroadcasting = false;
-                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Broadcast';
-                sendBtn.className = 'btn btn-success flex-1';
-                addLog('Broadcast stopped by user', 'warning');
-                return;
-            }
-
             const token = document.getElementById('botToken').value.trim();
             const message = document.getElementById('messageText').value;
             const startIndex = parseInt(document.getElementById('startIndex').value) || 0;
-            const mediaFile = document.getElementById('mediaFile').files[0];
             
             if (!token) {
                 addLog('Please enter a bot token first', 'error');
                 return;
             }
             
-            if (!message && currentMediaType === 'text') {
+            if (!message) {
                 addLog('Please enter a message to send', 'warning');
-                return;
-            }
-            
-            if ((currentMediaType !== 'text') && !mediaFile) {
-                addLog(`Please select a ${currentMediaType} file to send`, 'warning');
                 return;
             }
             
@@ -1268,23 +647,15 @@
             
             // Start broadcast
             isBroadcasting = true;
-            sendBtn.innerHTML = '<i class="fas fa-stop"></i> Stop Broadcast';
-            sendBtn.className = 'btn btn-error flex-1';
-            broadcastController = new AbortController();
             
             addLog('Starting broadcast...', 'info');
             progressContainer.style.display = 'block';
             
             // Start broadcast process
-            await startBroadcast(startIndex, message, mediaFile, currentMediaType);
-            
-            // Reset button state
-            isBroadcasting = false;
-            sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Broadcast';
-            sendBtn.className = 'btn btn-success flex-1';
+            await startBroadcast(startIndex, message);
         });
 
-        async function startBroadcast(startIndex, message, mediaFile, mediaType) {
+        async function startBroadcast(startIndex, message) {
             let currentIndex = startIndex;
             let hasMoreUsers = true;
             let processedCount = 0;
@@ -1305,16 +676,13 @@
                         addLog(`No more users found at index ${currentIndex}. Broadcast completed.`, 'info');
                         hasMoreUsers = false;
                         break;
-                    } else if (chatResult.error === 'Broadcast cancelled') {
-                        addLog('Broadcast cancelled', 'warning');
-                        break;
                     } else {
                         addLog(`Error fetching chat ID at index ${currentIndex}: ${chatResult.error}`, 'error');
                         failed++;
                         currentIndex++;
                         processedCount++;
                         updateStats();
-                        updateProgress(processedCount, processedCount + 10); // Estimate progress
+                        updateProgress(processedCount, processedCount + 10);
                         continue;
                     }
                 }
@@ -1323,8 +691,8 @@
                 processedCount++;
                 
                 try {
-                    // Send message to this chat ID
-                    const sendResult = await sendTelegramMessage(chatResult.chatId, message, mediaFile, mediaType);
+                    // Send message to this chat ID - SIMPLE URL ENCODED
+                    const sendResult = await sendTelegramMessage(chatResult.chatId, message);
                     
                     if (sendResult.ok) {
                         sent++;
@@ -1345,16 +713,12 @@
                         }
                     }
                 } catch (error) {
-                    if (error.message === 'Broadcast cancelled') {
-                        addLog('Broadcast cancelled during message sending', 'warning');
-                        break;
-                    }
                     failed++;
                     addLog(`❌ Failed to send to user at index ${currentIndex}: ${error.message}`, 'error');
                 }
                 
                 updateStats();
-                updateProgress(processedCount, processedCount + 10); // Estimate progress
+                updateProgress(processedCount, processedCount + 10);
                 
                 currentIndex++;
                 
@@ -1365,201 +729,6 @@
             if (isBroadcasting) {
                 addLog('🎉 Broadcast completed!', 'success');
                 showToast('Broadcast completed successfully!');
-            } else {
-                addLog('⏹️ Broadcast stopped', 'warning');
-                showToast('Broadcast stopped', false);
-            }
-            
-            updateCharts();
-        }
-
-        document.getElementById('clearLogs').addEventListener('click', function() {
-            logsContainer.innerHTML = '';
-            addLog('Logs cleared', 'info');
-        });
-
-        document.getElementById('exportLogs').addEventListener('click', function() {
-            addLog('Logs exported successfully', 'success');
-            // In a real app, this would download a log file
-            showToast('Logs exported!');
-        });
-
-        // Navigation toggle functionality
-        toggleButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                toggleButtons.forEach(btn => btn.classList.remove('active'));
-                sections.forEach(section => section.classList.remove('active'));
-                
-                button.classList.add('active');
-                
-                const sectionId = button.getAttribute('data-section') + 'Section';
-                document.getElementById(sectionId).classList.add('active');
-                
-                // Update charts when switching to analytics
-                if (button.getAttribute('data-section') === 'analytics') {
-                    updateCharts();
-                }
-            });
-        });
-
-        // Chart functionality
-        let deliveryChart, mediaChart, performanceChart;
-
-        function initCharts() {
-            // Delivery Status Chart
-            const deliveryCtx = document.getElementById('deliveryChart').getContext('2d');
-            deliveryChart = new Chart(deliveryCtx, {
-                type: 'pie',
-                data: {
-                    labels: ['Sent', 'Blocked', 'Failed'],
-                    datasets: [{
-                        data: [sent, blocked, failed],
-                        backgroundColor: [
-                            'rgba(76, 175, 80, 0.7)',
-                            'rgba(255, 152, 0, 0.7)',
-                            'rgba(244, 67, 54, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(76, 175, 80, 1)',
-                            'rgba(255, 152, 0, 1)',
-                            'rgba(244, 67, 54, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#f9fafb',
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = Math.round((value / total) * 100);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Media Type Chart
-            const mediaCtx = document.getElementById('mediaChart').getContext('2d');
-            mediaChart = new Chart(mediaCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Text Only', 'Photo', 'Video', 'Audio', 'Document'],
-                    datasets: [{
-                        data: [65, 20, 10, 3, 2],
-                        backgroundColor: [
-                            'rgba(255, 102, 0, 0.7)',
-                            'rgba(255, 152, 0, 0.7)',
-                            'rgba(255, 193, 7, 0.7)',
-                            'rgba(255, 235, 59, 0.7)',
-                            'rgba(255, 193, 7, 0.5)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 102, 0, 1)',
-                            'rgba(255, 152, 0, 1)',
-                            'rgba(255, 193, 7, 1)',
-                            'rgba(255, 235, 59, 1)',
-                            'rgba(255, 193, 7, 0.8)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#f9fafb',
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Performance Chart
-            const performanceCtx = document.getElementById('performanceChart').getContext('2d');
-            performanceChart = new Chart(performanceCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-                    datasets: [{
-                        label: 'Success Rate',
-                        data: [85, 78, 90, 88, 92, 87, 95],
-                        borderColor: 'rgba(76, 175, 80, 1)',
-                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    }, {
-                        label: 'Block Rate',
-                        data: [8, 12, 5, 7, 4, 8, 3],
-                        borderColor: 'rgba(255, 152, 0, 1)',
-                        backgroundColor: 'rgba(255, 152, 0, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                color: '#f9fafb',
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                color: '#9ca3af'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: '#9ca3af'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function updateCharts() {
-            if (deliveryChart) {
-                deliveryChart.data.datasets[0].data = [sent, blocked, failed];
-                deliveryChart.update();
             }
         }
 
