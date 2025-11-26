@@ -582,29 +582,6 @@
             gap: 15px;
         }
 
-        .media-type-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .media-type-btn {
-            flex: 1;
-            padding: 10px;
-            background: rgba(255, 102, 0, 0.1);
-            border: 1px solid rgba(255, 102, 0, 0.3);
-            border-radius: 5px;
-            color: var(--light);
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-
-        .media-type-btn.active {
-            background: var(--primary);
-            border-color: var(--primary);
-        }
-
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
@@ -721,27 +698,18 @@
                             </div>
                         </h2>
                     </div>
-                    
-                    <div class="media-type-selector">
-                        <div class="media-type-btn active" data-type="text">Text Only</div>
-                        <div class="media-type-btn" data-type="photo">Photo</div>
-                        <div class="media-type-btn" data-type="video">Video</div>
-                        <div class="media-type-btn" data-type="audio">Audio</div>
-                        <div class="media-type-btn" data-type="document">Document</div>
-                    </div>
-                    
                     <div class="form-group">
-                        <label for="messageText" id="messageLabel">Message Text</label>
+                        <label for="messageText">Message Text</label>
                         <textarea id="messageText" placeholder="Enter your broadcast message here..."></textarea>
                     </div>
 
-                    <div class="form-group" id="mediaUploadSection">
-                        <label id="mediaLabel">Media Attachment</label>
+                    <div class="form-group">
+                        <label>Media Attachment (Optional)</label>
                         <div class="file-input-container">
-                            <input type="file" id="mediaFile" class="file-input" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt">
+                            <input type="file" id="mediaFile" class="file-input" accept="image/*,video/*,audio/*">
                             <label for="mediaFile" class="file-input-label">
                                 <i class="fas fa-cloud-upload-alt"></i>
-                                <span id="fileInputText">Choose Image, Video or Audio File</span>
+                                <span>Choose Image, Video or Audio File</span>
                             </label>
                         </div>
                         <div class="file-preview" id="filePreview"></div>
@@ -896,14 +864,6 @@
     </section>
 
     <script>
-        // API Configuration
-        const API_BASE_URL = 'https://index-api-omega.vercel.app';
-        let currentBotToken = '';
-        let currentMediaType = 'text';
-        let isBroadcasting = false;
-        let broadcastController = new AbortController();
-
-        // DOM Elements
         const toast = document.getElementById('toast');
         const loadingContainer = document.getElementById('loadingContainer');
         const tokenStatus = document.getElementById('tokenStatus');
@@ -916,86 +876,14 @@
         const blockedCount = document.getElementById('blockedCount');
         const failedCount = document.getElementById('failedCount');
         const totalCount = document.getElementById('totalCount');
-        const messageLabel = document.getElementById('messageLabel');
-        const mediaLabel = document.getElementById('mediaLabel');
-        const fileInputText = document.getElementById('fileInputText');
-        const sendBtn = document.getElementById('sendBtn');
 
         const toggleButtons = document.querySelectorAll('.toggle-btn');
         const sections = document.querySelectorAll('.section');
-        const mediaTypeButtons = document.querySelectorAll('.media-type-btn');
 
-        // Statistics
         let sent = 0;
         let blocked = 0;
         let failed = 0;
         let total = 0;
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            initCharts();
-            loadSavedToken();
-            updateMediaUI();
-        });
-
-        // Media Type Selection
-        mediaTypeButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                mediaTypeButtons.forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                currentMediaType = this.getAttribute('data-type');
-                updateMediaUI();
-            });
-        });
-
-        function updateMediaUI() {
-            const mediaUploadSection = document.getElementById('mediaUploadSection');
-            const messageText = document.getElementById('messageText');
-            
-            switch(currentMediaType) {
-                case 'text':
-                    messageLabel.textContent = 'Message Text';
-                    messageText.placeholder = 'Enter your broadcast message here...';
-                    mediaUploadSection.style.display = 'none';
-                    break;
-                case 'photo':
-                    messageLabel.textContent = 'Photo Caption (Optional)';
-                    messageText.placeholder = 'Enter caption for your photo...';
-                    mediaUploadSection.style.display = 'block';
-                    mediaLabel.textContent = 'Photo File';
-                    fileInputText.textContent = 'Choose Photo File';
-                    document.getElementById('mediaFile').accept = 'image/*';
-                    break;
-                case 'video':
-                    messageLabel.textContent = 'Video Caption (Optional)';
-                    messageText.placeholder = 'Enter caption for your video...';
-                    mediaUploadSection.style.display = 'block';
-                    mediaLabel.textContent = 'Video File';
-                    fileInputText.textContent = 'Choose Video File';
-                    document.getElementById('mediaFile').accept = 'video/*';
-                    break;
-                case 'audio':
-                    messageLabel.textContent = 'Audio Caption (Optional)';
-                    messageText.placeholder = 'Enter caption for your audio...';
-                    mediaUploadSection.style.display = 'block';
-                    mediaLabel.textContent = 'Audio File';
-                    fileInputText.textContent = 'Choose Audio File';
-                    document.getElementById('mediaFile').accept = 'audio/*';
-                    break;
-                case 'document':
-                    messageLabel.textContent = 'Document Caption (Optional)';
-                    messageText.placeholder = 'Enter caption for your document...';
-                    mediaUploadSection.style.display = 'block';
-                    mediaLabel.textContent = 'Document File';
-                    fileInputText.textContent = 'Choose Document File';
-                    document.getElementById('mediaFile').accept = '.pdf,.doc,.docx,.txt,.zip,.rar';
-                    break;
-            }
-            
-            // Clear file preview when changing media type
-            document.getElementById('filePreview').style.display = 'none';
-            document.getElementById('mediaFile').value = '';
-        }
 
         // File preview functionality
         const mediaFile = document.getElementById('mediaFile');
@@ -1015,7 +903,7 @@
                 } else if (fileType === 'audio') {
                     filePreview.innerHTML = `<audio controls><source src="${URL.createObjectURL(file)}" type="${file.type}">Your browser does not support the audio tag.</audio>`;
                 } else {
-                    filePreview.innerHTML = `<p>File: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</p>`;
+                    filePreview.innerHTML = `<p>File type not supported for preview</p>`;
                 }
             }
         });
@@ -1051,10 +939,10 @@
         }
 
         // Token status functionality
-        function setTokenStatus(valid, botName = '') {
+        function setTokenStatus(valid) {
             if (valid) {
                 tokenStatus.className = 'status-indicator status-online';
-                tokenStatusText.textContent = botName ? `Token validated - ${botName}` : 'Token validated and ready';
+                tokenStatusText.textContent = 'Token validated and ready';
             } else {
                 tokenStatus.className = 'status-indicator status-offline';
                 tokenStatusText.textContent = 'Token not validated';
@@ -1079,101 +967,9 @@
             loadingContainer.classList.remove('show');
         }
 
-        // Load saved token from localStorage
-        function loadSavedToken() {
-            const savedToken = localStorage.getItem('telegramBotToken');
-            if (savedToken) {
-                document.getElementById('botToken').value = savedToken;
-                currentBotToken = savedToken;
-                addLog('Loaded saved bot token', 'info');
-            }
-        }
-
-        // API Functions
-        async function validateBotToken(token) {
-            try {
-                const response = await fetch(`https://api.telegram.org/bot${token}/getMe`);
-                if (!response.ok) {
-                    throw new Error('Invalid token');
-                }
-                const data = await response.json();
-                return { success: true, bot: data.result };
-            } catch (error) {
-                return { success: false, error: error.message };
-            }
-        }
-
-        async function getChatId(index) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/chat?index=${index}`, {
-                    signal: broadcastController.signal
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Failed to fetch chat ID');
-                }
-                
-                const data = await response.json();
-                
-                // Check if we got an error response (no more chats)
-                if (data.error === "Not found") {
-                    return { success: false, error: "No more users found" };
-                }
-                
-                // Return the chatId from the response
-                return { success: true, chatId: data.chatId };
-            } catch (error) {
-                if (error.name === 'AbortError') {
-                    return { success: false, error: 'Broadcast cancelled' };
-                }
-                return { success: false, error: error.message };
-            }
-        }
-
-        async function sendTelegramMessage(chatId, message, mediaFile = null, mediaType = 'text') {
-            try {
-                let endpoint = '';
-                let formData = new FormData();
-                formData.append('chat_id', chatId);
-
-                if (mediaType === 'text') {
-                    endpoint = 'sendMessage';
-                    formData.append('text', message);
-                } else {
-                    // For media messages, use caption for the text
-                    if (message && message.trim() !== '') {
-                        formData.append('caption', message);
-                    }
-                    
-                    formData.append(mediaType, mediaFile);
-                    
-                    switch(mediaType) {
-                        case 'photo': endpoint = 'sendPhoto'; break;
-                        case 'video': endpoint = 'sendVideo'; break;
-                        case 'audio': endpoint = 'sendAudio'; break;
-                        case 'document': endpoint = 'sendDocument'; break;
-                    }
-                }
-                
-                const response = await fetch(`https://api.telegram.org/bot${currentBotToken}/${endpoint}`, {
-                    method: 'POST',
-                    body: formData,
-                    signal: broadcastController.signal
-                });
-                
-                const result = await response.json();
-                return result;
-            } catch (error) {
-                if (error.name === 'AbortError') {
-                    throw new Error('Broadcast cancelled');
-                }
-                throw error;
-            }
-        }
-
         // Button event listeners
-        document.getElementById('validateToken').addEventListener('click', async function() {
-            const token = document.getElementById('botToken').value.trim();
+        document.getElementById('validateToken').addEventListener('click', function() {
+            const token = document.getElementById('botToken').value;
             if (!token) {
                 addLog('Please enter a bot token', 'error');
                 return;
@@ -1181,196 +977,85 @@
             
             addLog('Validating bot token...', 'info');
             showLoading();
-            
-            const result = await validateBotToken(token);
-            hideLoading();
-            
-            if (result.success) {
-                currentBotToken = token;
-                setTokenStatus(true, result.bot.first_name);
-                addLog(`Bot token validated successfully - ${result.bot.first_name} (@${result.bot.username})`, 'success');
-                showToast('Bot token validated successfully!');
-            } else {
-                setTokenStatus(false);
-                addLog(`Token validation failed: ${result.error}`, 'error');
-                showToast('Token validation failed!', false);
-            }
+            // Simulate API call
+            setTimeout(() => {
+                hideLoading();
+                addLog('Bot token validated successfully', 'success');
+                setTokenStatus(true);
+            }, 1000);
         });
 
         document.getElementById('saveToken').addEventListener('click', function() {
-            const token = document.getElementById('botToken').value.trim();
+            const token = document.getElementById('botToken').value;
             if (!token) {
                 addLog('Please enter a bot token first', 'error');
                 return;
             }
             
-            localStorage.setItem('telegramBotToken', token);
             addLog('Bot token saved to local storage', 'success');
-            showToast('Token saved successfully!');
+            // In a real app, this would save to localStorage or a secure backend
         });
 
         document.getElementById('previewBtn').addEventListener('click', function() {
             const message = document.getElementById('messageText').value;
-            if (!message && currentMediaType === 'text') {
+            if (!message) {
                 addLog('Please enter a message to preview', 'warning');
                 return;
             }
             
             addLog('Message preview generated', 'info');
             // In a real app, this would show a preview modal
-            alert(`Preview for ${currentMediaType} message:\n\n${message || '(No text)'}`);
+            alert('Preview functionality would show a preview of your message here.');
         });
 
-        document.getElementById('sendBtn').addEventListener('click', async function() {
-            if (isBroadcasting) {
-                // Stop broadcast
-                broadcastController.abort();
-                isBroadcasting = false;
-                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Broadcast';
-                sendBtn.className = 'btn btn-success flex-1';
-                addLog('Broadcast stopped by user', 'warning');
-                return;
-            }
-
-            const token = document.getElementById('botToken').value.trim();
+        document.getElementById('sendBtn').addEventListener('click', function() {
+            const token = document.getElementById('botToken').value;
             const message = document.getElementById('messageText').value;
-            const startIndex = parseInt(document.getElementById('startIndex').value) || 0;
-            const mediaFile = document.getElementById('mediaFile').files[0];
             
             if (!token) {
                 addLog('Please enter a bot token first', 'error');
                 return;
             }
             
-            if (!message && currentMediaType === 'text') {
+            if (!message) {
                 addLog('Please enter a message to send', 'warning');
                 return;
             }
             
-            if ((currentMediaType !== 'text') && !mediaFile) {
-                addLog(`Please select a ${currentMediaType} file to send`, 'warning');
-                return;
-            }
-            
-            // Validate token first
-            showLoading();
-            const tokenValid = await validateBotToken(token);
-            hideLoading();
-            
-            if (!tokenValid.success) {
-                addLog('Invalid bot token. Please validate your token first.', 'error');
-                showToast('Invalid bot token!', false);
-                return;
-            }
-            
-            currentBotToken = token;
-            
-            // Start broadcast
-            isBroadcasting = true;
-            sendBtn.innerHTML = '<i class="fas fa-stop"></i> Stop Broadcast';
-            sendBtn.className = 'btn btn-error flex-1';
-            broadcastController = new AbortController();
-            
             addLog('Starting broadcast...', 'info');
             progressContainer.style.display = 'block';
             
-            // Start broadcast process
-            await startBroadcast(startIndex, message, mediaFile, currentMediaType);
-            
-            // Reset button state
-            isBroadcasting = false;
-            sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Broadcast';
-            sendBtn.className = 'btn btn-success flex-1';
-        });
-
-        async function startBroadcast(startIndex, message, mediaFile, mediaType) {
-            let currentIndex = startIndex;
-            let hasMoreUsers = true;
-            let processedCount = 0;
-            
-            // Reset stats
-            sent = 0;
-            blocked = 0;
-            failed = 0;
-            total = 0;
+            // Simulate sending messages
+            total = 150; // Simulated total users
             updateStats();
             
-            while (hasMoreUsers && isBroadcasting) {
-                // Get chat ID from API
-                const chatResult = await getChatId(currentIndex);
+            let current = 0;
+            const interval = setInterval(() => {
+                current++;
                 
-                if (!chatResult.success) {
-                    if (chatResult.error === "No more users found") {
-                        addLog(`No more users found at index ${currentIndex}. Broadcast completed.`, 'info');
-                        hasMoreUsers = false;
-                        break;
-                    } else if (chatResult.error === 'Broadcast cancelled') {
-                        addLog('Broadcast cancelled', 'warning');
-                        break;
-                    } else {
-                        addLog(`Error fetching chat ID at index ${currentIndex}: ${chatResult.error}`, 'error');
-                        failed++;
-                        currentIndex++;
-                        processedCount++;
-                        updateStats();
-                        updateProgress(processedCount, processedCount + 10); // Estimate progress
-                        continue;
-                    }
-                }
-                
-                total++;
-                processedCount++;
-                
-                try {
-                    // Send message to this chat ID
-                    const sendResult = await sendTelegramMessage(chatResult.chatId, message, mediaFile, mediaType);
-                    
-                    if (sendResult.ok) {
-                        sent++;
-                        addLog(`✅ Message sent to user at index ${currentIndex} (Chat ID: ${chatResult.chatId})`, 'success');
-                    } else {
-                        if (sendResult.error_code === 403) {
-                            // User blocked the bot
-                            blocked++;
-                            addLog(`⚠️ User at index ${currentIndex} blocked the bot`, 'warning');
-                        } else if (sendResult.error_code === 400 && sendResult.description.includes('chat not found')) {
-                            // Chat not found
-                            failed++;
-                            addLog(`❌ Chat not found at index ${currentIndex}`, 'error');
-                        } else {
-                            // Other error
-                            failed++;
-                            addLog(`❌ Failed to send to user at index ${currentIndex}: ${sendResult.description}`, 'error');
-                        }
-                    }
-                } catch (error) {
-                    if (error.message === 'Broadcast cancelled') {
-                        addLog('Broadcast cancelled during message sending', 'warning');
-                        break;
-                    }
+                // Simulate different outcomes
+                const outcome = Math.random();
+                if (outcome < 0.7) {
+                    sent++;
+                    addLog(`Message sent to user ${current}`, 'success');
+                } else if (outcome < 0.85) {
+                    blocked++;
+                    addLog(`User ${current} blocked the bot`, 'warning');
+                } else {
                     failed++;
-                    addLog(`❌ Failed to send to user at index ${currentIndex}: ${error.message}`, 'error');
+                    addLog(`Failed to send to user ${current}`, 'error');
                 }
                 
                 updateStats();
-                updateProgress(processedCount, processedCount + 10); // Estimate progress
+                updateProgress(current, total);
                 
-                currentIndex++;
-                
-                // Add small delay to avoid rate limiting
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
-            
-            if (isBroadcasting) {
-                addLog('🎉 Broadcast completed!', 'success');
-                showToast('Broadcast completed successfully!');
-            } else {
-                addLog('⏹️ Broadcast stopped', 'warning');
-                showToast('Broadcast stopped', false);
-            }
-            
-            updateCharts();
-        }
+                if (current >= total) {
+                    clearInterval(interval);
+                    addLog('Broadcast completed!', 'success');
+                    updateCharts();
+                }
+            }, 100);
+        });
 
         document.getElementById('clearLogs').addEventListener('click', function() {
             logsContainer.innerHTML = '';
@@ -1380,7 +1065,6 @@
         document.getElementById('exportLogs').addEventListener('click', function() {
             addLog('Logs exported successfully', 'success');
             // In a real app, this would download a log file
-            showToast('Logs exported!');
         });
 
         // Navigation toggle functionality
@@ -1459,22 +1143,20 @@
             mediaChart = new Chart(mediaCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Text Only', 'Photo', 'Video', 'Audio', 'Document'],
+                    labels: ['Text Only', 'Image', 'Video', 'Audio'],
                     datasets: [{
-                        data: [65, 20, 10, 3, 2],
+                        data: [65, 20, 10, 5],
                         backgroundColor: [
                             'rgba(255, 102, 0, 0.7)',
                             'rgba(255, 152, 0, 0.7)',
                             'rgba(255, 193, 7, 0.7)',
-                            'rgba(255, 235, 59, 0.7)',
-                            'rgba(255, 193, 7, 0.5)'
+                            'rgba(255, 235, 59, 0.7)'
                         ],
                         borderColor: [
                             'rgba(255, 102, 0, 1)',
                             'rgba(255, 152, 0, 1)',
                             'rgba(255, 193, 7, 1)',
-                            'rgba(255, 235, 59, 1)',
-                            'rgba(255, 193, 7, 0.8)'
+                            'rgba(255, 235, 59, 1)'
                         ],
                         borderWidth: 1
                     }]
@@ -1564,6 +1246,9 @@
 
         // Initialize with some example logs
         addLog('Telegram Bot Broadcast Dashboard initialized', 'info');
+        
+        // Initialize charts when page loads
+        window.addEventListener('load', initCharts);
     </script>
 </body>
 </html>
