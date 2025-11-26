@@ -42,19 +42,3 @@ app.get("/chat", async (req, res) => {
 });
 
 app.listen(3000, () => console.log("API Ready"));
-
-    return res.json({ message: "Stored", index });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.get("/chat", async (req, res) => {
-  const index = parseInt(req.query.index);
-  const data = await Chat.findOne({ index });
-  if (!data) return res.json({ error: "Not found" });
-  res.json(data);
-});
-
-app.listen(3000, () => console.log("API running on 3000"));
-    
