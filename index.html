@@ -900,6 +900,8 @@
         const API_BASE_URL = 'https://index-api-omega.vercel.app';
         let currentBotToken = '';
         let currentMediaType = 'text';
+        let isBroadcasting = false;
+        let broadcastController = new AbortController();
 
         // DOM Elements
         const toast = document.getElementById('toast');
@@ -917,6 +919,7 @@
         const messageLabel = document.getElementById('messageLabel');
         const mediaLabel = document.getElementById('mediaLabel');
         const fileInputText = document.getElementById('fileInputText');
+        const sendBtn = document.getElementById('sendBtn');
 
         const toggleButtons = document.querySelectorAll('.toggle-btn');
         const sections = document.querySelectorAll('.section');
@@ -932,6 +935,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             initCharts();
             loadSavedToken();
+            updateMediaUI();
         });
 
         // Media Type Selection
@@ -960,6 +964,7 @@
                     mediaUploadSection.style.display = 'block';
                     mediaLabel.textContent = 'Image File';
                     fileInputText.textContent = 'Choose Image File';
+                    document.getElementById('mediaFile').accept = 'image/*';
                     break;
                 case 'video':
                     messageLabel.textContent = 'Video Caption (Optional)';
@@ -967,6 +972,7 @@
                     mediaUploadSection.style.display = 'block';
                     mediaLabel.textContent = 'Video File';
                     fileInputText.textContent = 'Choose Video File';
+                    document.getElementById('mediaFile').accept = 'video/*';
                     break;
                 case 'audio':
                     messageLabel.textContent = 'Audio Caption (Optional)';
@@ -974,6 +980,7 @@
                     mediaUploadSection.style.display = 'block';
                     mediaLabel.textContent = 'Audio File';
                     fileInputText.textContent = 'Choose Audio File';
+                    document.getElementById('mediaFile').accept = 'audio/*';
                     break;
                 case 'document':
                     messageLabel.textContent = 'Document Caption (Optional)';
@@ -981,6 +988,7 @@
                     mediaUploadSection.style.display = 'block';
                     mediaLabel.textContent = 'Document File';
                     fileInputText.textContent = 'Choose Document File';
+                    document.getElementById('mediaFile').accept = '.pdf,.doc,.docx,.txt,.zip,.rar';
                     break;
             }
             
@@ -1097,57 +1105,69 @@
 
         async function getChatId(index) {
             try {
-                const response = await fetch(`${API_BASE_URL}/chat?index=${index}`);
+                const response = await fetch(`${API_BASE_URL}/chat?index=${index}`, {
+                    signal: broadcastController.signal
+                });
+                
                 if (!response.ok) {
                     throw new Error('Failed to fetch chat ID');
                 }
+                
                 const data = await response.json();
+                
+                // Check if we got an error response (no more chats)
+                if (data.error === "Not found") {
+                    return { success: false, error: "No more users found" };
+                }
+                
+                // Return the chatId from the response
                 return { success: true, chatId: data.chatId };
             } catch (error) {
+                if (error.name === 'AbortError') {
+                    return { success: false, error: 'Broadcast cancelled' };
+                }
                 return { success: false, error: error.message };
             }
         }
 
         async function sendTelegramMessage(chatId, message, mediaFile = null, mediaType = 'text') {
-            const formData = new FormData();
-            formData.append('chat_id', chatId);
-            
-            if (mediaType === 'text') {
-                formData.append('text', message);
-                try {
-                    const response = await fetch(`https://api.telegram.org/bot${currentBotToken}/sendMessage`, {
-                        method: 'POST',
-                        body: formData
-                    });
-                    return await response.json();
-                } catch (error) {
-                    throw new Error('Failed to send message');
-                }
-            } else {
-                // For media messages, use caption for the text
-                if (message) {
-                    formData.append('caption', message);
-                }
-                
-                formData.append(mediaType, mediaFile);
-                
+            try {
                 let endpoint = '';
-                switch(mediaType) {
-                    case 'image': endpoint = 'sendPhoto'; break;
-                    case 'video': endpoint = 'sendVideo'; break;
-                    case 'audio': endpoint = 'sendAudio'; break;
-                    case 'document': endpoint = 'sendDocument'; break;
+                let formData = new FormData();
+                formData.append('chat_id', chatId);
+
+                if (mediaType === 'text') {
+                    endpoint = 'sendMessage';
+                    formData.append('text', message);
+                } else {
+                    // For media messages, use caption for the text
+                    if (message) {
+                        formData.append('caption', message);
+                    }
+                    
+                    formData.append(mediaType, mediaFile);
+                    
+                    switch(mediaType) {
+                        case 'image': endpoint = 'sendPhoto'; break;
+                        case 'video': endpoint = 'sendVideo'; break;
+                        case 'audio': endpoint = 'sendAudio'; break;
+                        case 'document': endpoint = 'sendDocument'; break;
+                    }
                 }
                 
-                try {
-                    const response = await fetch(`https://api.telegram.org/bot${currentBotToken}/${endpoint}`, {
-                        method: 'POST',
-                        body: formData
-                    });
-                    return await response.json();
-                } catch (error) {
-                    throw new Error(`Failed to send ${mediaType}`);
+                const response = await fetch(`https://api.telegram.org/bot${currentBotToken}/${endpoint}`, {
+                    method: 'POST',
+                    body: formData,
+                    signal: broadcastController.signal
+                });
+                
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    throw new Error('Broadcast cancelled');
                 }
+                throw error;
             }
         }
 
@@ -1202,6 +1222,16 @@
         });
 
         document.getElementById('sendBtn').addEventListener('click', async function() {
+            if (isBroadcasting) {
+                // Stop broadcast
+                broadcastController.abort();
+                isBroadcasting = false;
+                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Broadcast';
+                sendBtn.className = 'btn btn-success flex-1';
+                addLog('Broadcast stopped by user', 'warning');
+                return;
+            }
+
             const token = document.getElementById('botToken').value.trim();
             const message = document.getElementById('messageText').value;
             const startIndex = parseInt(document.getElementById('startIndex').value) || 0;
@@ -1235,16 +1265,28 @@
             
             currentBotToken = token;
             
+            // Start broadcast
+            isBroadcasting = true;
+            sendBtn.innerHTML = '<i class="fas fa-stop"></i> Stop Broadcast';
+            sendBtn.className = 'btn btn-error flex-1';
+            broadcastController = new AbortController();
+            
             addLog('Starting broadcast...', 'info');
             progressContainer.style.display = 'block';
             
             // Start broadcast process
             await startBroadcast(startIndex, message, mediaFile, currentMediaType);
+            
+            // Reset button state
+            isBroadcasting = false;
+            sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Broadcast';
+            sendBtn.className = 'btn btn-success flex-1';
         });
 
         async function startBroadcast(startIndex, message, mediaFile, mediaType) {
             let currentIndex = startIndex;
             let hasMoreUsers = true;
+            let processedCount = 0;
             
             // Reset stats
             sent = 0;
@@ -1253,18 +1295,31 @@
             total = 0;
             updateStats();
             
-            while (hasMoreUsers) {
+            while (hasMoreUsers && isBroadcasting) {
                 // Get chat ID from API
                 const chatResult = await getChatId(currentIndex);
                 
-                if (!chatResult.success || !chatResult.chatId) {
-                    addLog(`No more users found at index ${currentIndex}`, 'info');
-                    hasMoreUsers = false;
-                    break;
+                if (!chatResult.success) {
+                    if (chatResult.error === "No more users found") {
+                        addLog(`No more users found at index ${currentIndex}. Broadcast completed.`, 'info');
+                        hasMoreUsers = false;
+                        break;
+                    } else if (chatResult.error === 'Broadcast cancelled') {
+                        addLog('Broadcast cancelled', 'warning');
+                        break;
+                    } else {
+                        addLog(`Error fetching chat ID at index ${currentIndex}: ${chatResult.error}`, 'error');
+                        failed++;
+                        currentIndex++;
+                        processedCount++;
+                        updateStats();
+                        updateProgress(processedCount, processedCount + 10); // Estimate progress
+                        continue;
+                    }
                 }
                 
                 total++;
-                updateStats();
+                processedCount++;
                 
                 try {
                     // Send message to this chat ID
@@ -1272,12 +1327,16 @@
                     
                     if (sendResult.ok) {
                         sent++;
-                        addLog(`Message sent to user at index ${currentIndex}`, 'success');
+                        addLog(`Message sent to user at index ${currentIndex} (Chat ID: ${chatResult.chatId})`, 'success');
                     } else {
                         if (sendResult.error_code === 403) {
                             // User blocked the bot
                             blocked++;
                             addLog(`User at index ${currentIndex} blocked the bot`, 'warning');
+                        } else if (sendResult.error_code === 400 && sendResult.description.includes('chat not found')) {
+                            // Chat not found
+                            failed++;
+                            addLog(`Chat not found at index ${currentIndex}`, 'error');
                         } else {
                             // Other error
                             failed++;
@@ -1285,27 +1344,31 @@
                         }
                     }
                 } catch (error) {
+                    if (error.message === 'Broadcast cancelled') {
+                        addLog('Broadcast cancelled during message sending', 'warning');
+                        break;
+                    }
                     failed++;
                     addLog(`Failed to send to user at index ${currentIndex}: ${error.message}`, 'error');
                 }
                 
                 updateStats();
-                updateProgress(currentIndex - startIndex + 1, 100); // Simulate progress
+                updateProgress(processedCount, processedCount + 10); // Estimate progress
                 
                 currentIndex++;
                 
                 // Add small delay to avoid rate limiting
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                // For demo purposes, limit to 20 sends
-                if (currentIndex - startIndex >= 20) {
-                    addLog('Demo limit reached (20 messages sent)', 'info');
-                    break;
-                }
+                await new Promise(resolve => setTimeout(resolve, 500));
             }
             
-            addLog('Broadcast completed!', 'success');
-            showToast('Broadcast completed successfully!');
+            if (isBroadcasting) {
+                addLog('Broadcast completed!', 'success');
+                showToast('Broadcast completed successfully!');
+            } else {
+                addLog('Broadcast stopped', 'warning');
+                showToast('Broadcast stopped', false);
+            }
+            
             updateCharts();
         }
 
