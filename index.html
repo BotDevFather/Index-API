@@ -1158,7 +1158,8 @@
                 const response = await fetch(`https://api.telegram.org/bot${currentBotToken}/${endpoint}`, {
                     method: 'POST',
                     body: formData,
-                    signal: broadcastController.signal
+                    signal: broadcastController.signal,
+                    chat_id: chatId
                 });
                 
                 const result = await response.json();
