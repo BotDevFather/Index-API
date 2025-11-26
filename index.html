@@ -724,7 +724,7 @@
                     
                     <div class="media-type-selector">
                         <div class="media-type-btn active" data-type="text">Text Only</div>
-                        <div class="media-type-btn" data-type="image">Image</div>
+                        <div class="media-type-btn" data-type="photo">Photo</div>
                         <div class="media-type-btn" data-type="video">Video</div>
                         <div class="media-type-btn" data-type="audio">Audio</div>
                         <div class="media-type-btn" data-type="document">Document</div>
@@ -958,12 +958,12 @@
                     messageText.placeholder = 'Enter your broadcast message here...';
                     mediaUploadSection.style.display = 'none';
                     break;
-                case 'image':
-                    messageLabel.textContent = 'Image Caption (Optional)';
-                    messageText.placeholder = 'Enter caption for your image...';
+                case 'photo':
+                    messageLabel.textContent = 'Photo Caption (Optional)';
+                    messageText.placeholder = 'Enter caption for your photo...';
                     mediaUploadSection.style.display = 'block';
-                    mediaLabel.textContent = 'Image File';
-                    fileInputText.textContent = 'Choose Image File';
+                    mediaLabel.textContent = 'Photo File';
+                    fileInputText.textContent = 'Choose Photo File';
                     document.getElementById('mediaFile').accept = 'image/*';
                     break;
                 case 'video':
@@ -1141,14 +1141,14 @@
                     formData.append('text', message);
                 } else {
                     // For media messages, use caption for the text
-                    if (message) {
+                    if (message && message.trim() !== '') {
                         formData.append('caption', message);
                     }
                     
                     formData.append(mediaType, mediaFile);
                     
                     switch(mediaType) {
-                        case 'image': endpoint = 'sendPhoto'; break;
+                        case 'photo': endpoint = 'sendPhoto'; break;
                         case 'video': endpoint = 'sendVideo'; break;
                         case 'audio': endpoint = 'sendAudio'; break;
                         case 'document': endpoint = 'sendDocument'; break;
@@ -1327,20 +1327,20 @@
                     
                     if (sendResult.ok) {
                         sent++;
-                        addLog(`Message sent to user at index ${currentIndex} (Chat ID: ${chatResult.chatId})`, 'success');
+                        addLog(`✅ Message sent to user at index ${currentIndex} (Chat ID: ${chatResult.chatId})`, 'success');
                     } else {
                         if (sendResult.error_code === 403) {
                             // User blocked the bot
                             blocked++;
-                            addLog(`User at index ${currentIndex} blocked the bot`, 'warning');
+                            addLog(`⚠️ User at index ${currentIndex} blocked the bot`, 'warning');
                         } else if (sendResult.error_code === 400 && sendResult.description.includes('chat not found')) {
                             // Chat not found
                             failed++;
-                            addLog(`Chat not found at index ${currentIndex}`, 'error');
+                            addLog(`❌ Chat not found at index ${currentIndex}`, 'error');
                         } else {
                             // Other error
                             failed++;
-                            addLog(`Failed to send to user at index ${currentIndex}: ${sendResult.description}`, 'error');
+                            addLog(`❌ Failed to send to user at index ${currentIndex}: ${sendResult.description}`, 'error');
                         }
                     }
                 } catch (error) {
@@ -1349,7 +1349,7 @@
                         break;
                     }
                     failed++;
-                    addLog(`Failed to send to user at index ${currentIndex}: ${error.message}`, 'error');
+                    addLog(`❌ Failed to send to user at index ${currentIndex}: ${error.message}`, 'error');
                 }
                 
                 updateStats();
@@ -1362,10 +1362,10 @@
             }
             
             if (isBroadcasting) {
-                addLog('Broadcast completed!', 'success');
+                addLog('🎉 Broadcast completed!', 'success');
                 showToast('Broadcast completed successfully!');
             } else {
-                addLog('Broadcast stopped', 'warning');
+                addLog('⏹️ Broadcast stopped', 'warning');
                 showToast('Broadcast stopped', false);
             }
             
@@ -1459,7 +1459,7 @@
             mediaChart = new Chart(mediaCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Text Only', 'Image', 'Video', 'Audio', 'Document'],
+                    labels: ['Text Only', 'Photo', 'Video', 'Audio', 'Document'],
                     datasets: [{
                         data: [65, 20, 10, 3, 2],
                         backgroundColor: [
