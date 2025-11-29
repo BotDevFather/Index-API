@@ -1286,11 +1286,29 @@
             })
         },
         {
-            // Private channel: https://t.me/c/123456789/123
-            regex: /^https:\/\/t\.me\/c\/(\d+)\/(\d+)/,
+            // Private channel: https://t.me/c/123456789/123 or https://t.me/c/-123456789/123
+            regex: /^https:\/\/t\.me\/c\/(-?\d+)\/(\d+)/,
             type: "Private Channel",
+            parse: (match) => {
+                let chatId = match[1];
+                // If it's a negative number, keep it as is, otherwise add -100 prefix
+                if (chatId.startsWith('-')) {
+                    chatId = chatId;
+                } else {
+                    chatId = "-100" + chatId;
+                }
+                return {
+                    chatId: chatId,
+                    messageId: match[2]
+                };
+            }
+        },
+        {
+            // Thread format: https://t.me/s/channelname/123
+            regex: /^https:\/\/t\.me\/s\/([^\/]+)\/(\d+)/,
+            type: "Thread",
             parse: (match) => ({
-                chatId: "-100" + match[1],
+                chatId: "@" + match[1],
                 messageId: match[2]
             })
         }
@@ -1299,17 +1317,18 @@
     for (let entry of patterns) {
         const match = url.match(entry.regex);
         if (match) {
-            return {
+            const result = {
                 type: entry.type,
                 ...entry.parse(match)
             };
+            console.log("Parsed URL:", url, "Result:", result);
+            return result;
         }
     }
 
+    console.log("Failed to parse URL:", url);
     return null;
-        }
-        
-
+}
         // Admin Management
         document.getElementById('addAdminBtn').addEventListener('click', function() {
             const newAdminId = document.getElementById('newAdminId').value.trim();
