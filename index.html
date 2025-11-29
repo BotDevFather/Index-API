@@ -1275,40 +1275,40 @@
         });
 
         function parseTelegramUrl(url) {
-            // Regular expressions for different Telegram URL formats
-            const patterns = [
-                // Public channel format: https://t.me/channelname/123
-                /https:\/\/t\.me\/([^\/]+)\/(\d+)/,
-                
-                // Private channel format: https://t.me/c/123456789/123
-                /https:\/\/t\.me\/c\/(-\d+)\/(\d+)/,
-                
-                // Thread format: https://t.me/s/channelname/123
-                /https:\/\/t\.me\/s\/([^\/]+)\/(\d+)/
-            ];
-            
-            for (let pattern of patterns) {
-                const match = url.match(pattern);
-                if (match) {
-                    let chatId = match[1];
-                    const messageId = match[2];
-                    
-                    // For public channels, we need to convert to the format @channelname
-                    if (pattern === patterns[0] || pattern === patterns[2]) {
-                        chatId = '@' + chatId;
-                    }
-                    
-                    return {
-                        chatId: chatId,
-                        messageId: messageId,
-                        type: pattern === patterns[0] ? 'Public Channel' : 
-                              pattern === patterns[1] ? 'Private Channel' : 'Thread'
-                    };
-                }
-            }
-            
-            return null;
+    const patterns = [
+        {
+            // Public channel: https://t.me/channelname/123
+            regex: /^https:\/\/t\.me\/([^\/]+)\/(\d+)/,
+            type: "Public Channel",
+            parse: (match) => ({
+                chatId: "@" + match[1],
+                messageId: match[2]
+            })
+        },
+        {
+            // Private channel: https://t.me/c/123456789/123
+            regex: /^https:\/\/t\.me\/c\/(\d+)\/(\d+)/,
+            type: "Private Channel",
+            parse: (match) => ({
+                chatId: "-100" + match[1],
+                messageId: match[2]
+            })
         }
+    ];
+
+    for (let entry of patterns) {
+        const match = url.match(entry.regex);
+        if (match) {
+            return {
+                type: entry.type,
+                ...entry.parse(match)
+            };
+        }
+    }
+
+    return null;
+        }
+        
 
         // Admin Management
         document.getElementById('addAdminBtn').addEventListener('click', function() {
